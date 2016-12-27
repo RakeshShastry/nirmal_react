@@ -31,46 +31,62 @@ var Header = React.createClass({
 });
 
 var LoginForm = React.createClass({
+ getInitialState() {
+  return {action: 'login',err : ''}
+},
  ValidateLogin() {
    var email = this.refs.LoginEmail.state.value;
    var password = this.refs.LoginPassword.state.value;
    var params ={username: email,password:password};
    var xhttp = new XMLHttpRequest();
-   xhttp.onreadystatechange = function() {
+   var updateState = this.setState.bind(this);
+   console.log('state is', this.state)
+   xhttp.onreadystatechange = function(res) {
     if (this.readyState == 4 && this.status == 200) {
-      console.log('inside success')
+        //console.log('before update', JSON.parse(res.target.response), JSON.parse(res.target.response).username)
+        if(JSON.parse(res.target.response).username)
+          updateState({action:'success'})
+        else{
+          updateState({err:'Failure!!!'})
+          }
+        //this.setState();
+        console.log('after update')
     } else {
-      console.log('inside failure')
+      console.log('this.readyState',this.readyState)
     }
   };
   xhttp.open("POST", "/login", true);
   xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
   xhttp.send(JSON.stringify(params));
-  //xhttp.send(params);
+
  },
  render() {
-action1 :
-   return (
-     <div className="loginDiv">
-       <Header />
-       <LoginEmail ref="LoginEmail"/>
-       <LoginPassword ref="LoginPassword"/>
-       <br></br>
-       <LoginSubmit ValidateLogin={this.ValidateLogin}/>
-     </div>
-   )
-
-   action2:
-   return (
-     <div className="loginDiv">
-        welcome user
-     </div>
-   )
- }
+    console.log('inside render')
+  switch(this.state.action){
+  case 'login':
+             return (
+               <div className="loginDiv">
+                 <Header />
+                 <LoginEmail ref="LoginEmail"/>
+                 <LoginPassword ref="LoginPassword"/>
+                 <br></br>
+                 <LoginSubmit ValidateLogin={this.ValidateLogin}/>
+                 <p>{this.state.err}</p>
+               </div>
+             )
+  case 'success':
+               return (
+                 <div className="loginDiv">
+                   <h1>Success</h1>
+                 </div>
+               )
+}
+}
 });
 
 var LoginEmail = React.createClass({
  getInitialState() {
+ console.log('inside initialstate')
    return {value: null}
  },
  onChange(e) {

@@ -2,7 +2,7 @@ require('../helper')
 
 const http = require('http')
 
-const login = require('../react-classes/login')
+const login = require('../../react-classes/login')
 var server
 
 before(function() {
