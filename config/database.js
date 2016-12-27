@@ -3,7 +3,7 @@ const database = 'camp'
 const connection = mysql.createConnection({
   host : 'localhost',
   user : 'root',
-  password:'',
+  password:'root',
   database: database
 })
 connection.connect(function(err){

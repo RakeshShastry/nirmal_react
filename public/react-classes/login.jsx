@@ -1,27 +1,3 @@
-function Login(email, password) {
-if (email) {
- ShowSuccessAtDOM("container", email);
-} else {
- ShowFailureAtDOM("container");
-}
-};
-
-function ShowSuccessAtDOM(id, name) {
- ReactDOM.unmountComponentAtNode(document.getElementById("result"));
- ReactDOM.render(
-   <LoginSuccess name={name} />,
-   document.getElementById("result")
- );
-};
-
-function ShowFailureAtDOM(id) {
- ReactDOM.unmountComponentAtNode(document.getElementById("result"));
- ReactDOM.render(
-   <LoginFail />,
-   document.getElementById("result")
- );
-};
-
 var Header = React.createClass({
  render() {
    return (
@@ -35,17 +11,49 @@ var LoginForm = React.createClass({
   return {action: 'login',err : ''}
 },
  ValidateLogin() {
+
    var email = this.refs.LoginEmail.state.value;
    var password = this.refs.LoginPassword.state.value;
    var params ={username: email,password:password};
+
    var xhttp = new XMLHttpRequest();
    var updateState = this.setState.bind(this);
-   console.log('state is', this.state)
+
    xhttp.onreadystatechange = function(res) {
     if (this.readyState == 4 && this.status == 200) {
         //console.log('before update', JSON.parse(res.target.response), JSON.parse(res.target.response).username)
-        if(JSON.parse(res.target.response).username)
-          updateState({action:'success'})
+        if(JSON.parse(res.target.response).result){
+           var oReq =  new XMLHttpRequest();
+           oReq.onreadystatechange = function(response) {
+               if (this.readyState == 4 && this.status == 200) {
+                  var result = JSON.parse(response.target.response)
+                  var add = result.filter(element => element.flag == 0)
+                  var edit = result.filter(element => element.flag == 1)
+                  var addList = add.map(function(element){
+                     return(
+                         <li>
+                          <AddComponet carrier={element.state} ref="AddComponet"/>
+                         </li>
+
+                        )
+                    })
+                    updateState({action:'success'})
+
+
+                  //const listItems = numbers.map((number) =>
+                      //<ListItem key={number.toString()}
+                        //value={number} />
+                  //);
+
+               }
+         }
+         oReq.open("GET", "/dashboard", true);
+         oReq.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+         oReq.send(null);
+
+
+
+        }
         else{
           updateState({err:'Failure!!!'})
           }
@@ -77,13 +85,38 @@ var LoginForm = React.createClass({
   case 'success':
                return (
                  <div className="loginDiv">
-                   <h1>Success</h1>
+                 <ul>
+                 {addList}
+                 </ul>
                  </div>
                )
 }
 }
 });
-
+var AddComponet = React.createClass({
+getInitialState() {
+  return {username: null,password:null}
+},
+onChangeUsername(e) {
+  this.setState({username: e.target.value});
+},
+onChangePassword(e) {
+  this.setState({password: e.target.value});
+},
+onClick() {
+  console.log("reached here")
+},
+render(){
+  return(
+     <div>
+     <h6>{this.props.carrier}</h6>
+     <input type="text" onChange={this.onChangeUsername}/>
+      <input type="password" onChange={this.onChangePassword}/>
+      <button onClick={this.onClick}>Add</button>
+     </div>
+  )
+}
+})
 var LoginEmail = React.createClass({
  getInitialState() {
  console.log('inside initialstate')
@@ -126,22 +159,6 @@ var LoginSubmit = React.createClass({
  render() {
    return (
      <button onClick={this.onClick}>Login</button>
-   )
- }
-});
-
-var LoginSuccess = React.createClass({
- render() {
-   return (
-     <h2>Login Success! Welcome Back, {this.props.name}</h2>
-   )
- }
-});
-
-var LoginFail = React.createClass({
- render() {
-   return (
-     <h2>Login FAIL...</h2>
    )
  }
 });
