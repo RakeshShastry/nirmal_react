@@ -9,12 +9,13 @@ var Header = React.createClass({
 var LoginForm = React.createClass({
 
  getInitialState() {
-  return {action: 'login',err : '',addList:''}
+  return {username:null,password:null,action: 'login',err : '',addList:''}
 
 },
  ValidateLogin() {
-   var email = this.refs.LoginEmail.state.value;
-   var password = this.refs.LoginPassword.state.value;
+   var email = this.state.username
+   var password = this.state.password
+   if(email && password){
    var params ={username: email,password:password};
    var xhttp = new XMLHttpRequest();
    var updateState = this.setState.bind(this);
@@ -50,7 +51,21 @@ var LoginForm = React.createClass({
   xhttp.open("POST", "/login", true);
   xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
   xhttp.send(JSON.stringify(params));
-
+  }
+  else{
+    if(!email)
+     this.setState({err:'Enter username !!!'})
+    else if(!password)
+     this.setState({err:'Enter password !!!'})
+    else
+      this.setState({err:'Enter values !!!'})
+  }
+ },
+ onChangeUsername(e){
+   this.setState({username:e.target.value})
+ },
+ onChangePassword(e){
+   this.setState({password:e.target.value})
  },
  setResult(result){
    this.setState({addList:result})
@@ -64,24 +79,46 @@ var LoginForm = React.createClass({
   case 'login':
              return (
                <div>
-               <div id="centered">
-               <Header />
-               </div>
+               <h1>Agent Login</h1>
                <div id="outPopUp">
-                <LoginEmail ref="LoginEmail"/>
-                 <br></br>
-                 <LoginPassword ref="LoginPassword"/>
-                 <br></br>
-                 <LoginSubmit ValidateLogin={this.ValidateLogin}/>
-                 <p>{this.state.err}</p>
-               </div>
+                <table>
+                <thead>
+                </thead>
+                <tbody>
+                  <tr>
+                     <td>
+                        <label/>Username:
+                     </td>
+                     <td>
+                        <input type="text" onChange={this.onChangeUsername}/>
+                     </td>
+                  </tr>
+                  <tr>
+                     <td>
+                        <label/>Password:
+                     </td>
+                     <td>
+                        <input type="text" onChange={this.onChangePassword}/>
+                     </td>
+                  </tr>
+                  <tr>
+                     <td>
+                     </td>
+                     <td>
+                       <button onClick={this.ValidateLogin}>Login</button>
+                     </td>
+                  </tr>
+
+                </tbody>
+                </table>
+                </div>
                </div>
              )
   case 'success':
                var list = this.state.addList.filter(element => element.flag == 0)
                var edit = this.state.addList.filter(element => element.flag == 1)
               var obj = []
-
+               var name = list[0].agent_username;
                var obj1 = []
                var setResult = this.setResult
 
@@ -102,6 +139,7 @@ var LoginForm = React.createClass({
                   <h1>Carriers</h1>
                 </div>
                 <div id="rightd">
+                 <h4>Hi , {name.toUpperCase()}</h4>
                  <button onClick={this.onClick}>Logout</button>
                 </div>
                 <table>
